@@ -12,7 +12,7 @@ Get the total length/duration of a YouTube playlist.
 
 You need to install [Violentmonkey][VMLink] or [Tampermonkey][TMLink] first and then click the install link below.
 
-- Install [playlist calculator][script]
+- Install [Playlist Calculator][script]
 
 [script]: https://github.com/sapondanaisriwan/Youtube-Playlist-Calculator/raw/main/yt-playlist-calculator.user.js
 
