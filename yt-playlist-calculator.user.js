@@ -29,9 +29,21 @@ const cLogStyles = "color: red; font-size: 16px";
 const config = { childList: true, subtree: true };
 
 const selectors = {
-  timeStamp:
+  overlayTime: "ytd-playlist-header-renderer #overlays .duration-text",
+  playlistOverlay: "ytd-playlist-header-renderer #overlays",
+  timestampOverlay:
     "ytd-playlist-video-list-renderer #text.ytd-thumbnail-overlay-time-status-renderer",
+  thumbnail:
+    "ytd-playlist-video-list-renderer ytd-thumbnail-overlay-hover-text-renderer",
 };
+
+const overlayDurationEle = document.createElement("div");
+overlayDurationEle.setAttribute("class", "duration-overlay");
+
+const overlayText = document.createElement("span");
+overlayText.setAttribute("class", "duration-text");
+
+overlayDurationEle.appendChild(overlayText);
 
 const cLog = (msg) => console.log(`%c${msg}`, cLogStyles);
 
@@ -39,51 +51,103 @@ const select = (selector) => document.querySelector(selector);
 
 const selectAll = (selector) => document.querySelectorAll(selector);
 
-const yes = (elements) => {
+const addStyles = (css) => {
+  const style = document.createElement("style");
+  style.type = "text/css";
+  style.textContent = css;
+  document.documentElement.appendChild(style);
+};
+
+const findSumOfSecond = (overlays) => {
   let totalSeconds = 0;
-  let hours = 0;
-  let minutes = 0;
-  let seconds = 0;
+  overlays.forEach((overlay) => {
+    const timeArr = overlay.innerText.split(":").map(Number);
 
-  elements.forEach((timestamp) => {
-    const parts = timestamp.innerText.split(":");
-
-    // Convert the components to numbers and calculate the total number of seconds for this timestamp
-    const numParts = parts.map((part) => parseInt(part));
     let timestampSeconds = 0;
-    if (numParts.length === 3) {
-      timestampSeconds = numParts[0] * 3600 + numParts[1] * 60 + numParts[2];
-    } else if (numParts.length === 2) {
-      timestampSeconds = numParts[0] * 60 + numParts[1];
+    if (timeArr.length === 3) {
+      timestampSeconds = timeArr[0] * 3600 + timeArr[1] * 60 + timeArr[2];
+    } else if (timeArr.length === 2) {
+      timestampSeconds = timeArr[0] * 60 + timeArr[1];
     } else {
-      timestampSeconds = numParts[0];
+      timestampSeconds = timeArr[0];
     }
 
-    // Add the timestamp's seconds to the total
     totalSeconds += timestampSeconds;
   });
+  return totalSeconds;
+};
 
-  // Convert the total number of seconds to components
-  hours = Math.floor(totalSeconds / 3600);
-  minutes = Math.floor((totalSeconds % 3600) / 60);
-  seconds = totalSeconds % 60;
+const formatDuration = (sumSeconds) => {
+  const hours = Math.floor(sumSeconds / 3600);
+  const minutes = Math.floor((sumSeconds % 3600) / 60);
+  const seconds = sumSeconds % 60;
+  let formattedDuration = "";
+  if (hours > 0) {
+    formattedDuration += hours + ":";
+  }
+  if (minutes < 10 && hours > 0) {
+    formattedDuration += "0";
+  }
+  formattedDuration += minutes + ":";
+  if (seconds < 10) {
+    formattedDuration += "0";
+  }
+  formattedDuration += seconds;
+  return formattedDuration;
+};
 
-  // Format the components as a timestamp string
-  const formattedTimestamp = `${hours.toString().padStart(2, "0")}:${minutes
-    .toString()
-    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+const createElement = (duration) => {
+  const overlayTimeEle = select(selectors.overlayTime);
+  const overlayCon = select(selectors.playlistOverlay);
 
-  // Output the formatted timestamp
-  console.log(formattedTimestamp);
+  if (!overlayCon) return;
+
+  if (overlayTimeEle) {
+    overlayTimeEle.textContent = duration;
+  } else {
+    overlayCon.prepend(overlayDurationEle);
+  }
 };
 
 const test = () => {
   if (window.location.pathname !== "/playlist") return;
-  const getOverlayElements = selectAll(selectors.timeStamp);
-  getOverlayElements && yes(getOverlayElements);
+  const getOverlayElements = selectAll(selectors.timestampOverlay);
+  const sumSeconds = findSumOfSecond(getOverlayElements);
+  const duration = formatDuration(sumSeconds);
+  createElement(duration);
 };
 
 const run = () => {
+  addStyles(`
+    .duration-overlay {
+      margin: 4px;
+      display: inline-block;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      margin: 4px;
+      color: var(--yt-spec-static-brand-white);
+      background-color: var(--yt-spec-static-overlay-background-heavy);
+      padding: 3px 4px;
+      height: 12px;
+      border-radius: 2px;
+      font-size: var(--yt-badge-font-size,1.2rem);
+      font-weight: var(--yt-badge-font-weight,500);
+      line-height: var(--yt-badge-line-height-size,1.2rem);
+      letter-spacing: var(--yt-badge-letter-spacing,unset);
+      letter-spacing: var(--yt-badge-letter-spacing,0.5px);
+      display: flexbox;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      display: inline-flexbox;
+      display: inline-flex;
+    }
+    .duration-text {
+        max-height: 1.2rem;
+        overflow: hidden;
+    }
+  `);
   const observer = new MutationObserver(test);
   observer.observe(document.body, config);
 };
