@@ -8,7 +8,6 @@
 // @grant       none
 // @license     MIT
 // @homepageURL https://github.com/sapondanaisriwan/Youtube-Playlist-Calculator
-// @updateURL   https://raw.githubusercontent.com/sapondanaisriwan/youtube-playlist-calculator/main/yt-playlist-calculator.user.js
 // @supportURL  https://github.com/sapondanaisriwan/Youtube-Playlist-Calculator/issues
 // @icon        https://i.imgur.com/I9uDrsq.png
 // ==/UserScript==
@@ -24,8 +23,6 @@ Support me: https://ko-fi.com/sapondanaisriwan
 */
 
 "use strict";
-
-console.log("test")
 
 const config = { childList: true, subtree: true };
 
