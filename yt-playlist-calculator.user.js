@@ -8,7 +8,7 @@
 // @grant       none
 // @license     MIT
 // @homepageURL https://github.com/sapondanaisriwan/Youtube-Playlist-Calculator
-// @downloadURL   https://github.com/sapondanaisriwan/Youtube-Playlist-Calculator/raw/main/yt-playlist-calculator.user.js
+// @updateURL   https://github.com/sapondanaisriwan/Youtube-Playlist-Calculator/raw/main/yt-playlist-calculator.user.js
 // @supportURL  https://github.com/sapondanaisriwan/Youtube-Playlist-Calculator/issues
 // @icon        https://i.imgur.com/I9uDrsq.png
 // ==/UserScript==
