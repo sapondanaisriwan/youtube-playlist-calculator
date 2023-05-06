@@ -2,11 +2,11 @@
 // @name        YouTube Playlist Calculator
 // @version     1.0.1
 // @author      sapondanaisriwan
-// @namespace   https://github.com/sapondanaisriwan/Youtube-Playlist-Calculator
 // @description Get the total length/duration of a YouTube playlist.
 // @match       https://www.youtube.com/*
 // @grant       none
 // @license     MIT
+// @namespace   https://greasyfork.org/en/scripts/465609-youtube-playlist-calculator
 // @homepageURL https://github.com/sapondanaisriwan/Youtube-Playlist-Calculator
 // @supportURL  https://github.com/sapondanaisriwan/Youtube-Playlist-Calculator/issues
 // @icon        https://i.imgur.com/I9uDrsq.png
