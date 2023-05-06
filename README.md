@@ -16,7 +16,7 @@ You need to install [Violentmonkey][VMLink] or [Tampermonkey][TMLink] first and 
 
 https://user-images.githubusercontent.com/64634605/236537152-efa59330-8d02-41f5-aa51-4e560c2597eb.mp4
 
-[script]: https://github.com/sapondanaisriwan/Youtube-Playlist-Calculator/raw/main/yt-playlist-calculator.user.js
+[script]: https://greasyfork.org/en/scripts/465609-youtube-playlist-calculator
 
 [VMLink]: https://violentmonkey.github.io/get-it/#stable-release
 [TMLink]: https://www.tampermonkey.net/
