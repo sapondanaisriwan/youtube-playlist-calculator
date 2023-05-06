@@ -25,6 +25,8 @@ Support me: https://ko-fi.com/sapondanaisriwan
 
 "use strict";
 
+console.log("test")
+
 const config = { childList: true, subtree: true };
 
 const selectors = {
