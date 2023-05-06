@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        YouTube Playlist Calculator
-// @version     1.0.0
+// @version     1.0.1
 // @author      sapondanaisriwan
 // @namespace   https://github.com/sapondanaisriwan/Youtube-Playlist-Calculator
 // @description Get the total length/duration of a YouTube playlist.
@@ -25,10 +25,10 @@ Support me: https://ko-fi.com/sapondanaisriwan
 
 "use strict";
 
-const cLogStyles = "color: red; font-size: 16px";
 const config = { childList: true, subtree: true };
 
 const selectors = {
+  playlistPage: "ytd-browse[page-subtype='playlist']",
   overlayTime: "ytd-playlist-header-renderer #overlays .duration-text",
   playlistOverlay: "ytd-playlist-header-renderer #overlays",
   timestampOverlay:
@@ -37,15 +37,35 @@ const selectors = {
     "ytd-playlist-video-list-renderer ytd-thumbnail-overlay-hover-text-renderer",
 };
 
-const overlayDurationEle = document.createElement("div");
-overlayDurationEle.setAttribute("class", "duration-overlay");
+const styles = {
+  log: "color: #fff; font-size: 16px;",
+  duration: `
+    .duration-overlay {
+      margin: 4px;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      color: var(--yt-spec-static-brand-white);
+      background-color: var(--yt-spec-static-overlay-background-heavy);
+      padding: 3px 4px;
+      height: 12px;
+      border-radius: 2px;
+      font-size: var(--yt-badge-font-size,1.2rem);
+      font-weight: var(--yt-badge-font-weight,500);
+      line-height: var(--yt-badge-line-height-size,1.2rem);
+      letter-spacing: var(--yt-badge-letter-spacing,0.5px);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    .duration-text {
+        max-height: 1.2rem;
+        overflow: hidden;
+    }
+  `,
+};
 
-const overlayText = document.createElement("span");
-overlayText.setAttribute("class", "duration-text");
-
-overlayDurationEle.appendChild(overlayText);
-
-const cLog = (msg) => console.log(`%c${msg}`, cLogStyles);
+const cLog = (msg) => console.log(`%c${msg}`, styles.log);
 
 const select = (selector) => document.querySelector(selector);
 
@@ -58,29 +78,16 @@ const addStyles = (css) => {
   document.documentElement.appendChild(style);
 };
 
-const findSumOfSecond = (overlays) => {
-  let totalSeconds = 0;
-  overlays.forEach((overlay) => {
-    const timeArr = overlay.innerText.split(":").map(Number);
-
-    let timestampSeconds = 0;
-    if (timeArr.length === 3) {
-      timestampSeconds = timeArr[0] * 3600 + timeArr[1] * 60 + timeArr[2];
-    } else if (timeArr.length === 2) {
-      timestampSeconds = timeArr[0] * 60 + timeArr[1];
-    } else {
-      timestampSeconds = timeArr[0];
-    }
-
-    totalSeconds += timestampSeconds;
-  });
-  return totalSeconds;
+const getData = (selector) => {
+  return selector?.__data?.data?.contents?.twoColumnBrowseResultsRenderer
+    ?.tabs[0]?.tabRenderer?.content?.sectionListRenderer?.contents[0]
+    ?.itemSectionRenderer?.contents[0]?.playlistVideoListRenderer?.contents;
 };
 
-const formatDuration = (sumSeconds) => {
-  const hours = Math.floor(sumSeconds / 3600);
-  const minutes = Math.floor((sumSeconds % 3600) / 60);
-  const seconds = sumSeconds % 60;
+const formatDuration = (sum) => {
+  const hours = Math.floor(sum / 3600);
+  const minutes = Math.floor((sum % 3600) / 60);
+  const seconds = sum % 60;
   let formattedDuration = "";
   if (hours > 0) {
     formattedDuration += hours + ":";
@@ -96,7 +103,15 @@ const formatDuration = (sumSeconds) => {
   return formattedDuration;
 };
 
-const createElement = (duration) => {
+const newOverlayContainer = document.createElement("div");
+newOverlayContainer.setAttribute("class", "duration-overlay");
+
+const newTextEle = document.createElement("span");
+newTextEle.setAttribute("class", "duration-text");
+
+newOverlayContainer.appendChild(newTextEle);
+
+const addDurationOverlay = (duration) => {
   const overlayTimeEle = select(selectors.overlayTime);
   const overlayCon = select(selectors.playlistOverlay);
 
@@ -105,50 +120,34 @@ const createElement = (duration) => {
   if (overlayTimeEle) {
     overlayTimeEle.textContent = duration;
   } else {
-    overlayCon.prepend(overlayDurationEle);
+    overlayCon.prepend(newOverlayContainer);
   }
 };
 
-const test = () => {
-  if (window.location.pathname !== "/playlist") return;
-  const getOverlayElements = selectAll(selectors.timestampOverlay);
-  const sumSeconds = findSumOfSecond(getOverlayElements);
-  const duration = formatDuration(sumSeconds);
-  createElement(duration);
+const sumResult = (data) =>
+  data.reduce((pre, cur) => {
+    return (
+      pre +
+      (!!cur.playlistVideoRenderer
+        ? +cur.playlistVideoRenderer.lengthSeconds
+        : 0)
+    );
+  }, 0);
+
+const main = () => {
+  const playlistEle = select(selectors.playlistPage);
+  if (!playlistEle) return;
+
+  const data = getData(playlistEle);
+  const sum = sumResult(data);
+
+  const duration = formatDuration(sum);
+  addDurationOverlay(duration);
 };
 
 const run = () => {
-  addStyles(`
-    .duration-overlay {
-      margin: 4px;
-      display: inline-block;
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      margin: 4px;
-      color: var(--yt-spec-static-brand-white);
-      background-color: var(--yt-spec-static-overlay-background-heavy);
-      padding: 3px 4px;
-      height: 12px;
-      border-radius: 2px;
-      font-size: var(--yt-badge-font-size,1.2rem);
-      font-weight: var(--yt-badge-font-weight,500);
-      line-height: var(--yt-badge-line-height-size,1.2rem);
-      letter-spacing: var(--yt-badge-letter-spacing,unset);
-      letter-spacing: var(--yt-badge-letter-spacing,0.5px);
-      display: flexbox;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      display: inline-flexbox;
-      display: inline-flex;
-    }
-    .duration-text {
-        max-height: 1.2rem;
-        overflow: hidden;
-    }
-  `);
-  const observer = new MutationObserver(test);
+  addStyles(styles.duration);
+  const observer = new MutationObserver(main);
   observer.observe(document.body, config);
 };
 
