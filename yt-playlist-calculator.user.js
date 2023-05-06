@@ -152,5 +152,3 @@ const run = () => {
 };
 
 run();
-
-https://raw.githubusercontent.com/sapondanaisriwan/youtube-playlist-calculator/main/yt-playlist-calculator.user.js
