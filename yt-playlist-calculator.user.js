@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        YouTube Playlist Calculator
-// @version     1.0.1
+// @version     1.0.2
 // @author      sapondanaisriwan
 // @description Get the total length/duration of a YouTube playlist.
 // @match       https://www.youtube.com/*
@@ -27,7 +27,10 @@ Support me: https://ko-fi.com/sapondanaisriwan
 const config = { childList: true, subtree: true };
 
 const selectors = {
-  playlistPage: "ytd-browse[page-subtype='playlist']",
+  watchPage: "ytd-watch-flexy[playlist]:not([hidden])",
+  wpPLContainer: "ytd-playlist-panel-renderer[collapsible] #publisher-container.ytd-playlist-panel-renderer",
+  wpPLText: "ytd-playlist-panel-renderer[collapsible] #publisher-container.ytd-playlist-panel-renderer .wp-text",
+  playlistPage: "ytd-browse[page-subtype='playlist']:not([hidden])",
   overlayTime: "ytd-playlist-header-renderer #overlays .duration-text",
   playlistOverlay: "ytd-playlist-header-renderer #overlays",
   timestampOverlay:
@@ -61,6 +64,12 @@ const styles = {
         max-height: 1.2rem;
         overflow: hidden;
     }
+
+    .wp-container::before {
+        color: var(--yt-spec-text-secondary);
+        content: "-";
+        padding: 0 4px;
+    }
   `,
 };
 
@@ -77,10 +86,14 @@ const addStyles = (css) => {
   document.documentElement.appendChild(style);
 };
 
-const getData = (selector) => {
+const getDataPlaylist = (selector) => {
   return selector?.__data?.data?.contents?.twoColumnBrowseResultsRenderer
     ?.tabs[0]?.tabRenderer?.content?.sectionListRenderer?.contents[0]
     ?.itemSectionRenderer?.contents[0]?.playlistVideoListRenderer?.contents;
+};
+
+const getDataWatchPage = (selector) => {
+  return selector.__data.playlistData.contents;
 };
 
 const formatDuration = (sum) => {
@@ -115,12 +128,24 @@ const addDurationOverlay = (duration) => {
   const overlayCon = select(selectors.playlistOverlay);
 
   if (!overlayCon) return;
+  if (!overlayTimeEle) return overlayCon.prepend(newOverlayContainer);
+  overlayTimeEle.textContent = duration;
+};
 
-  if (overlayTimeEle) {
-    overlayTimeEle.textContent = duration;
-  } else {
-    overlayCon.prepend(newOverlayContainer);
-  }
+const newWPContainer = document.createElement("div");
+newWPContainer.setAttribute("class", "wp-container index-message-wrapper style-scope ytd-playlist-panel-renderer");
+
+const newWPText = document.createElement("span");
+newWPText.setAttribute("class", "wp-text");
+
+newWPContainer.appendChild(newWPText);
+
+const addDurationWP = (duration) => {
+  const wpDurationEle = select(selectors.wpPLText);
+  const wpContainerEle = select(selectors.wpPLContainer);
+  if (!wpContainerEle) return;
+  if (!wpDurationEle) return wpContainerEle.appendChild(newWPContainer);
+  wpDurationEle.textContent = `[ ${duration} ]`;
 };
 
 const sumResult = (data) =>
@@ -133,15 +158,42 @@ const sumResult = (data) =>
     );
   }, 0);
 
+const sumResultText = (overlays) => {
+  let totalSeconds = 0;
+  overlays.forEach((overlay) => {
+    const timeArr = overlay.playlistPanelVideoRenderer.lengthText.simpleText
+      .split(":")
+      .map(Number);
+
+    let timestampSeconds = 0;
+    if (timeArr.length === 3) {
+      timestampSeconds = timeArr[0] * 3600 + timeArr[1] * 60 + timeArr[2];
+    } else if (timeArr.length === 2) {
+      timestampSeconds = timeArr[0] * 60 + timeArr[1];
+    } else {
+      timestampSeconds = timeArr[0];
+    }
+
+    totalSeconds += timestampSeconds;
+  });
+  return totalSeconds;
+};
+
 const main = () => {
   const playlistEle = select(selectors.playlistPage);
-  if (!playlistEle) return;
-
-  const data = getData(playlistEle);
-  const sum = sumResult(data);
-
-  const duration = formatDuration(sum);
-  addDurationOverlay(duration);
+  const watchPageEle = select(selectors.watchPage);
+  if (playlistEle) {
+    const data = getDataPlaylist(playlistEle);
+    const sum = sumResult(data);
+    const duration = formatDuration(sum);
+    addDurationOverlay(duration);
+  }
+  if (watchPageEle) {
+    const data = getDataWatchPage(watchPageEle);
+    const sum = sumResultText(data);
+    const duration = formatDuration(sum);
+    addDurationWP(duration);
+  }
 };
 
 const run = () => {
