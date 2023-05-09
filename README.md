@@ -4,7 +4,8 @@
 
 Get the total length/duration of a YouTube playlist.
 
-<img src="https://i.imgur.com/hKFB5zh.png" width="100%" />
+<!-- gay-scenes -->
+<img src="https://i.imgur.com/BkH1pun.png" width="100%" />
 
 </div>
 
