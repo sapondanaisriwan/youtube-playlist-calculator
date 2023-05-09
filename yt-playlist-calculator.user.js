@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        YouTube Playlist Calculator
-// @version     1.0.2
+// @version     1.0.3
 // @author      sapondanaisriwan
 // @description Get the total length/duration of a YouTube playlist.
 // @match       https://www.youtube.com/*
@@ -15,7 +15,7 @@
 /*
 If you want to submit a bug or request a feature please report via github issue. Since I receive so many emails, I can't reply to them all.
 Contact: sapondanaisriwan@gmail.com
-Support me: https://ko-fi.com/sapondanaisriwan 
+Support me: https://ko-fi.com/sapondanaisriwan
 Support me: https://ko-fi.com/sapondanaisriwan
 Support me: https://ko-fi.com/sapondanaisriwan
 Support me: https://ko-fi.com/sapondanaisriwan
@@ -28,8 +28,10 @@ const config = { childList: true, subtree: true };
 
 const selectors = {
   watchPage: "ytd-watch-flexy[playlist]:not([hidden])",
-  wpPLContainer: "ytd-playlist-panel-renderer[collapsible] #publisher-container.ytd-playlist-panel-renderer",
-  wpPLText: "ytd-playlist-panel-renderer[collapsible] #publisher-container.ytd-playlist-panel-renderer .wp-text",
+  wpPLContainer:
+    "ytd-playlist-panel-renderer[collapsible] #publisher-container.ytd-playlist-panel-renderer",
+  wpPLText:
+    "ytd-playlist-panel-renderer[collapsible] #publisher-container.ytd-playlist-panel-renderer .wp-text",
   playlistPage: "ytd-browse[page-subtype='playlist']:not([hidden])",
   overlayTime: "ytd-playlist-header-renderer #overlays .duration-text",
   playlistOverlay: "ytd-playlist-header-renderer #overlays",
@@ -133,7 +135,10 @@ const addDurationOverlay = (duration) => {
 };
 
 const newWPContainer = document.createElement("div");
-newWPContainer.setAttribute("class", "wp-container index-message-wrapper style-scope ytd-playlist-panel-renderer");
+newWPContainer.setAttribute(
+  "class",
+  "wp-container index-message-wrapper style-scope ytd-playlist-panel-renderer"
+);
 
 const newWPText = document.createElement("span");
 newWPText.setAttribute("class", "wp-text");
@@ -161,7 +166,8 @@ const sumResult = (data) =>
 const sumResultText = (overlays) => {
   let totalSeconds = 0;
   overlays.forEach((overlay) => {
-    const timeArr = overlay.playlistPanelVideoRenderer.lengthText.simpleText
+    if (!overlay.playlistPanelVideoRenderer) return;
+    const timeArr = overlay?.playlistPanelVideoRenderer?.lengthText?.simpleText
       .split(":")
       .map(Number);
 
