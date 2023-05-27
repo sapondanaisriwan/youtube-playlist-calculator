@@ -65,9 +65,9 @@ const addStyles = (css) => {
 };
 
 const getDataPlaylist = (selector) => {
-  return selector?.__data?.data?.contents?.twoColumnBrowseResultsRenderer
-    ?.tabs[0]?.tabRenderer?.content?.sectionListRenderer?.contents[0]
-    ?.itemSectionRenderer?.contents[0]?.playlistVideoListRenderer?.contents;
+  return selector.__data.data.contents.twoColumnBrowseResultsRenderer.tabs[0]
+    .tabRenderer.content.sectionListRenderer.contents[0].itemSectionRenderer
+    .contents[0].playlistVideoListRenderer.contents;
 };
 
 const getDataWatchPage = (selector) => {
