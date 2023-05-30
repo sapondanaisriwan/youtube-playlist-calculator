@@ -19,36 +19,6 @@ const selectors = {
 
 const styles = {
   log: "color: #fff; font-size: 16px;",
-  duration: `
-    .duration-overlay {
-      margin: 4px;
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      color: var(--yt-spec-static-brand-white);
-      background-color: var(--yt-spec-static-overlay-background-heavy);
-      padding: 3px 4px;
-      height: 12px;
-      border-radius: 2px;
-      font-size: var(--yt-badge-font-size,1.2rem);
-      font-weight: var(--yt-badge-font-weight,500);
-      line-height: var(--yt-badge-line-height-size,1.2rem);
-      letter-spacing: var(--yt-badge-letter-spacing,0.5px);
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-    }
-    .duration-text {
-        max-height: 1.2rem;
-        overflow: hidden;
-    }
-
-    .wp-container::before {
-        color: var(--yt-spec-text-secondary);
-        content: "-";
-        padding: 0 4px;
-    }
-  `,
 };
 
 const cLog = (msg) => console.log(`%c${msg}`, styles.log);
@@ -183,7 +153,6 @@ const main = () => {
 };
 
 const run = () => {
-  addStyles(styles.duration);
   const observer = new MutationObserver(main);
   observer.observe(document.body, config);
 };

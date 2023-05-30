@@ -23,7 +23,7 @@ buttonEle.addEventListener("click", (e) => {
   storage.set({ isEnabled: button.ariaPressed == "true" ? false : true });
   button.setAttribute(
     "aria-pressed",
-    button.ariaPressed == "true" ? "false" : "true"
+    button.ariaPressed == "true" ? false : true
   );
   reloadTabs();
 });
